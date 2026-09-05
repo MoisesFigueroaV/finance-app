@@ -1,9 +1,5 @@
-const SingInPage = () => {
-  return (
-    <div>
-      Sing In Page
-    </div>
-  );
-};
+import { SignIn } from "@clerk/nextjs";
 
-export default SingInPage;
+export default function Page() {
+  return <SignIn />;
+}
