@@ -1,12 +1,12 @@
-import { Button } from "@/components/ui/button";
+import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 
-export default async function Home() {
+export default async function DashboardPage() {
   await auth.protect();
 
   return (
-    <Button variant="destructive">
-        Click Me
-    </Button>
+    <main>
+      <UserButton />
+    </main>
   );
 }
