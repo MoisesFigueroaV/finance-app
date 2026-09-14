@@ -5,8 +5,12 @@ export default async function DashboardPage() {
   await auth.protect();
 
   return (
-    <main>
+    <div>
+      <h1>
+        Dashboard Page
+      </h1>
+
       <UserButton />
-    </main>
+    </div>
   );
 }
