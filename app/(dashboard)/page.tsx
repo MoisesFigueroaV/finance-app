@@ -10,7 +10,7 @@ export default async function DashboardPage() {
         Dashboard Page
       </h1>
 
-      <UserButton />
+
     </div>
   );
 }
