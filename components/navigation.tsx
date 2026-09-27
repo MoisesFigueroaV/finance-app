@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { useMedia } from "react-use";
 import { Menu } from "lucide-react";
+
 import { usePathname, useRouter } from "next/navigation";
 
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { NavButton } from "@/components/ui/nav-button";
 import {
@@ -51,21 +54,30 @@ export const Navigation = () => {
   if (isMobile) {
     return (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="font-normal bg-white/10 hover:bg-white/20
-            hover:text-white border-none focus-visible:ring-offset-0
-            focus-visible:ring-transparent outline-none text-white
-            focus:bg-white/30 transition border-none"
-          >
-
-          </Button>
-          <Menu />
+        <SheetTrigger
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "sm" }),
+            "font-normal bg-white/10 hover:bg-white/20 hover:text-white border-none focus-visible:ring-offset-0 focus-visible:ring-transparent outline-none text-white focus:bg-white/30 transition cursor-pointer"
+          )}
+        >
+          <Menu className="size-4" />
         </SheetTrigger>
+        <SheetContent side="left" className="px-2">
+          <nav className="flex flex-col gap-y-2 pt-6">
+            {routes.map((route) => (
+              <Button
+                key={route.href}
+                variant={route.href === pathname ? "secondary" : "ghost"}
+                onClick={() => onClick(route.href)}
+                className="w-full justify-start"
+              >
+                {route.label}
+              </Button>
+            ))}
+          </nav>
+        </SheetContent>
       </Sheet>
-    )
+    );
   }
 
   return (
