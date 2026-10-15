@@ -33,8 +33,11 @@ const app = new Hono()
   //Obtener Cuenta en especifica
   .get(
     "/:id",
+    //Con zValidator tenemos la revision de los parametros zod de los schemas
     zValidator(
       "param",
+      //Recuperamos un objeto desde su ID de formato string y con opcionalidad se encarga en el caso de que el
+      //ID este vacio se ingrese igual y se hace una comprobacion manual con la condicional if error 400 de la linea 50
       z.object({
         id: z.string().optional(),
       })
@@ -42,15 +45,17 @@ const app = new Hono()
     async (c) => {
       const auth = getAuth(c);
       const { id } = c.req.valid("param");
-
+      //Con este if sabemos si el ID de la cuenta es valido
       if (!id) {
         return c.json({ error: "Missing id" }, 400);
       }
-
+      //Con este if vemos si el usuarios esta logueado
       if (!auth?.userId) {
         return c.json({ error: "Unauthorized" }, 401);
       }
-
+      //Aca tengo un destrunturing desempaqueta con una consulta a la db sobre la cuenta donde obtengo con su arreglo
+      //ID de la cuenta, el nombre, desde la cuenta from con la condicion y sea igual a el id de la cuenta, la
+      //Autentificacion del usuario de la cuenta.
       const [data] = await db
         .select({
           id: accounts.id,
@@ -63,11 +68,11 @@ const app = new Hono()
             eq(accounts.id, id)
           )
         );
-
+      //Aca vemos si hubo coincidencias
       if (!data) {
         return c.json({ error: "Not found" }, 404);
       }
-
+      //Responde con el objeto de la cuenta encontrada
       return c.json({ data });
     }
   )
@@ -183,44 +188,6 @@ const app = new Hono()
   )
 
   // 6. DELETE /:id: Eliminar una sola cuenta
-  .delete(
-    "/:id",
-    zValidator(
-      "param",
-      z.object({
-        id: z.string().optional(),
-      })
-    ),
-    async (c) => {
-      const auth = getAuth(c);
-      const { id } = c.req.valid("param");
-
-      if (!id) {
-        return c.json({ error: "Missing id" }, 400);
-      }
-
-      if (!auth?.userId) {
-        return c.json({ error: "Unauthorized" }, 401);
-      }
-
-      const [data] = await db
-        .delete(accounts)
-        .where(
-          and(
-            eq(accounts.userId, auth.userId),
-            eq(accounts.id, id)
-          )
-        )
-        .returning({
-          id: accounts.id,
-        });
-
-      if (!data) {
-        return c.json({ error: "Not found" }, 404);
-      }
-
-      return c.json({ data });
-    }
-  );
+  .delete();
 
 export default app;

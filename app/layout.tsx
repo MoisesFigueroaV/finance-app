@@ -3,6 +3,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import { shadcn } from "@clerk/ui/themes";
 import "./globals.css";
+import { QueryProvider } from "@/providers/query-provider";
+import { SheetProvider } from "@/providers/sheet-provaider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,7 +24,10 @@ export default function RootLayout({
     <ClerkProvider appearance={{ theme: shadcn }}>
       <html lang="en" className="h-full">
         <body className={`${inter.className} min-h-full flex flex-col antialiased`}>
-          {children}
+          <QueryProvider>
+            <SheetProvider />
+            {children}
+          </QueryProvider>
         </body>
       </html>
     </ClerkProvider>
