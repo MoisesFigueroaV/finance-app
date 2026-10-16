@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Sheet,
   SheetContent,
@@ -6,20 +8,32 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useNewAccount } from "@/features/accounts/hooks/use-new-account";
+import { AccountForm } from "@/features/accounts/components/account-form";
 
 export const NewAccountSheet = () => {
   const { isOpen, onClose } = useNewAccount();
 
+  const onSubmit = (values: { name: string }) => {
+    console.log({ values });
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="space-y-4">
+      <SheetContent className="space-y-4 px-6">
         <SheetHeader>
-          <SheetTitle>Nueva Cuenta</SheetTitle>
-          <SheetDescription>
-            Crea una nueva cuenta para rastrear tus transacciones.
+          <SheetTitle className="text-center">New Account</SheetTitle>
+          <SheetDescription className="text-center">
+            Create a new account to track your transactions.
           </SheetDescription>
         </SheetHeader>
 
+        <AccountForm
+          onSubmit={onSubmit}
+          disabled={false}
+          defaultValues={{
+            name: "",
+          }}
+        />
       </SheetContent>
     </Sheet>
   );

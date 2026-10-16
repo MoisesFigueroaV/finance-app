@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@clerk/hono": "^0.1.89",
     "@clerk/nextjs": "^7.9.1",
     "@clerk/ui": "^1.32.2",
     "@hono/clerk-auth": "^3.1.1",
@@ -20,6 +21,8 @@
     "@hookform/resolvers": "^5.9.1",
     "@neondatabase/serverless": "^1.1.0",
     "@paralleldrive/cuid2": "^3.3.0",
+    "@radix-ui/react-label": "^2.1.17",
+    "@radix-ui/react-slot": "^1.5.0",
     "@tanstack/react-query": "^5.104.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
