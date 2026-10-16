@@ -75,7 +75,7 @@ export const AccountForm = ({
           )}
         />
 
-        <Button className="w-full" disabled={disabled}>
+        <Button className="w-full" disabled={disabled} type="submit">
           {id ? "Save changes" : "Create account"}
         </Button>
 

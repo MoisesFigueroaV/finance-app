@@ -9,12 +9,19 @@ import {
 } from "@/components/ui/sheet";
 import { useNewAccount } from "@/features/accounts/hooks/use-new-account";
 import { AccountForm } from "@/features/accounts/components/account-form";
+import { useCreateAccount } from "@/features/accounts/api/use-create-account";
 
 export const NewAccountSheet = () => {
   const { isOpen, onClose } = useNewAccount();
 
+  const mutation = useCreateAccount();
+
   const onSubmit = (values: { name: string }) => {
-    console.log({ values });
+    mutation.mutate(values, {
+      onSuccess: () => {
+        onClose();
+      },
+    });
   };
 
   return (

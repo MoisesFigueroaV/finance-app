@@ -3,6 +3,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 import { shadcn } from "@clerk/ui/themes";
 import "./globals.css";
+
+import { Toaster } from "@/components/ui/sonner";
 import { QueryProvider } from "@/providers/query-provider";
 import { SheetProvider } from "@/providers/sheet-provaider";
 
@@ -26,6 +28,7 @@ export default function RootLayout({
         <body className={`${inter.className} min-h-full flex flex-col antialiased`}>
           <QueryProvider>
             <SheetProvider />
+            <Toaster />
             {children}
           </QueryProvider>
         </body>
