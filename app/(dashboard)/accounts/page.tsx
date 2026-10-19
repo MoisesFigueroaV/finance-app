@@ -4,6 +4,7 @@ import { Loader2, Plus } from "lucide-react";
 
 import { useNewAccount } from "@/features/accounts/hooks/use-new-account";
 import { useGetAccounts } from "@/features/accounts/api/use-get-accounts";
+import { useBulkDeleteAccounts } from "@/features/accounts/api/use-bulk-delete-accounts";
 
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
@@ -19,6 +20,7 @@ import { columns } from "@/features/accounts/components/columns";
 
 const AccountsPage = () => {
   const newAccount = useNewAccount();
+  const bulkDelete = useBulkDeleteAccounts();
   const accountsQuery = useGetAccounts();
   const accounts = accountsQuery.data || [];
 
@@ -30,7 +32,7 @@ const AccountsPage = () => {
             <Skeleton className="h-8 w-48" />
           </CardHeader>
           <CardContent>
-            <div className="h-[500px] w-full flex items-center justify-center">
+            <div className="h-125 w-full flex items-center justify-center">
               <Loader2 className="size-6 text-slate-300 animate-spin" />
             </div>
           </CardContent>
@@ -52,7 +54,15 @@ const AccountsPage = () => {
           </Button>
         </CardHeader>
         <CardContent>
-          <DataTable columns={columns} data={accounts} />
+          <DataTable
+            filterKey="name"
+            columns={columns}
+            data={accounts}
+            onDelete={(rows) =>
+              bulkDelete.mutate({ ids: rows.map((row) => row.original.id) })
+            }
+            disabled={accountsQuery.isLoading || bulkDelete.isPending}
+          />
         </CardContent>
       </Card>
     </div>
