@@ -6,10 +6,11 @@ import { InferResponseType } from "hono";
 import { client } from "@/lib/hono";
 import { type DataTableFeatures } from "@/components/data-table-features";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Actions } from "@/components/actions";
 
 export type ResponseType = InferResponseType<typeof client.api.accounts.$get, 200>["data"][number];
 
-export const columns: ColumnDef<DataTableFeatures, ResponseType>[] = [
+export const columns: ColumnDef<DataTableFeatures, ResponseType, unknown>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -37,4 +38,8 @@ export const columns: ColumnDef<DataTableFeatures, ResponseType>[] = [
     header: "Name",
     filterFn: "includesString",
   },
+  {
+    id: "actions",
+    cell: ({ row }) => <Actions id={row.original.id} />,
+  }
 ];

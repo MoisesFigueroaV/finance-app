@@ -7,10 +7,16 @@ const NewAccountSheet = dynamic(
   { ssr: false }
 );
 
+const EditAccountSheet = dynamic(
+  () => import("@/features/accounts/components/edit-account-sheet").then((mod) => mod.EditAccountSheet),
+  { ssr: false }
+);
+
 export const SheetProvider = () => {
   return (
     <>
       <NewAccountSheet />
+      <EditAccountSheet />
     </>
   );
 };
