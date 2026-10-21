@@ -12,11 +12,24 @@ const EditAccountSheet = dynamic(
   { ssr: false }
 );
 
+const NewCategorySheet = dynamic(
+  () => import("@/features/categories/components/new-categories-sheet").then((mod) => mod.NewCategoriesSheet),
+  { ssr: false }
+);
+
+const EditCategorySheet = dynamic(
+  () => import("@/features/categories/components/edit-categories-sheet").then((mod) => mod.EditCategoriesSheet),
+  { ssr: false }
+);
+
 export const SheetProvider = () => {
   return (
     <>
       <NewAccountSheet />
       <EditAccountSheet />
+
+      <NewCategorySheet />
+      <EditCategorySheet />
     </>
   );
 };

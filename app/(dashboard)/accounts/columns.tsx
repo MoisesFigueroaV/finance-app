@@ -5,8 +5,6 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { type DataTableFeatures } from "@/components/data-table-features"
 import { Checkbox } from "@/components/ui/checkbox"
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
 export type Payment = {
   id: string
   amount: number
@@ -14,7 +12,6 @@ export type Payment = {
   email: string
 }
 
-// Use `accessor` for data columns and `display` for columns without one.
 const columnHelper = createColumnHelper<DataTableFeatures, Payment>()
 
 export const columns = columnHelper.columns([
