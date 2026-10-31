@@ -6,7 +6,7 @@ import {
   accounts,
   categories
 } from "@/db/schema";
-import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
+import { clerkMiddleware, getAuth } from "@clerk/hono";
 import { zValidator } from "@hono/zod-validator";
 import { createId } from "@paralleldrive/cuid2";
 import { subDays, parseISO } from "date-fns";

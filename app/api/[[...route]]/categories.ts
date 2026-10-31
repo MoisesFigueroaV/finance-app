@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
+import { clerkMiddleware, getAuth } from "@clerk/hono";
 import { zValidator } from "@hono/zod-validator";
 import { eq, and, inArray } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
