@@ -1,7 +1,7 @@
 "use client";
 
 import { useOpenCategories } from "@/features/categories/hooks/use-open-categories";
-import { useGetCategories } from "@/features/categories/api/use-get-categories";
+import { useGetCategory } from "@/features/categories/api/use-get-category"; // <-- Usar singular (useGetCategory)
 import { useEditCategories } from "@/features/categories/api/use-edit-categories";
 import { useDeleteCategories } from "@/features/categories/api/use-delete-categories";
 import { CategoriesForm } from "@/features/categories/components/categories-form";
@@ -25,15 +25,15 @@ export const EditCategoriesSheet = () => {
 
   const [ConfirmDialog, confirm] = useConfirm(
     "Are you sure?",
-    "You are about to delete this categories."
+    "You are about to delete this category."
   );
 
-  const categoriesQuery = useGetCategories(id);
+  const categoryQuery = useGetCategory(id);
   const editMutation = useEditCategories(id);
   const deleteMutation = useDeleteCategories(id);
 
   const isPending = editMutation.isPending || deleteMutation.isPending;
-  const isLoading = categoriesQuery.isLoading;
+  const isLoading = categoryQuery.isLoading;
 
   const onSubmit = (values: FormValues) => {
     editMutation.mutate(values, {
@@ -55,9 +55,9 @@ export const EditCategoriesSheet = () => {
     }
   };
 
-  const defaultValues = categoriesQuery.data
-      ? { name: categoriesQuery.data.name }
-      : { name: "" };
+  const defaultValues = categoryQuery.data
+    ? { name: categoryQuery.data.name }
+    : { name: "" };
 
   return (
     <>
@@ -65,9 +65,9 @@ export const EditCategoriesSheet = () => {
       <Sheet open={isOpen} onOpenChange={onClose}>
         <SheetContent className="space-y-4">
           <SheetHeader>
-            <SheetTitle>Edit Categories</SheetTitle>
+            <SheetTitle>Edit Category</SheetTitle>
             <SheetDescription>
-              Edit an existing account to track your transactions.
+              Edit an existing category to organize your transactions.
             </SheetDescription>
           </SheetHeader>
 

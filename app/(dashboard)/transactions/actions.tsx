@@ -43,7 +43,7 @@ export const Actions = ({ id }: Props) => {
         />
         <DropdownMenu.Portal>
           <DropdownMenu.Positioner side="bottom" align="end" sideOffset={4}>
-            <DropdownMenu.Popup className="z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md outline-none">
+            <DropdownMenu.Popup className="z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md outline-none">
               <DropdownMenu.Item
                 disabled={deleteMutation.isPending}
                 onClick={() => onOpen(id)}

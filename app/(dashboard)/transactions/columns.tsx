@@ -10,6 +10,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { DataTableFeatures } from "@/components/data-table-features";
 
 import { Actions } from "./actions";
 
@@ -18,14 +19,15 @@ export type ResponseType = InferResponseType<
   200
 >["data"][0];
 
-export const columns: ColumnDef<ResponseType>[] = [
+// Cambiar ColumnDef<ResponseType> por ColumnDef<DataTableFeatures, ResponseType>
+export const columns: ColumnDef<DataTableFeatures, ResponseType>[] = [
   {
     id: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          (table.getIsSomePageRowsSelected() && true)
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
