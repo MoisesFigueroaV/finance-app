@@ -21,8 +21,9 @@ export const DatePicker = ({ value, onChange, disabled }: Props) => {
   return (
     <Popover.Root>
       <Popover.Trigger
-        render={
+        render={(props) => (
           <Button
+            {...props}
             disabled={disabled}
             variant="outline"
             className={cn(
@@ -33,7 +34,7 @@ export const DatePicker = ({ value, onChange, disabled }: Props) => {
             <CalendarIcon className="mr-2 size-4" />
             {value ? format(value, "PPP") : <span>Pick a date</span>}
           </Button>
-        }
+        )}
       />
       <Popover.Portal>
         <Popover.Positioner side="bottom" align="start" sideOffset={4}>
@@ -41,7 +42,7 @@ export const DatePicker = ({ value, onChange, disabled }: Props) => {
             <DayPicker
               mode="single"
               selected={value}
-              onSelect={onChange}
+              onSelect={(date) => onChange?.(date)}
               disabled={disabled}
             />
           </Popover.Popup>

@@ -1,42 +1,50 @@
 "use client";
 
-import { InferResponseType } from "hono";
-import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
 import { format } from "date-fns";
+import type { InferResponseType } from "hono";
+import { ArrowUpDown } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
 
 import { client } from "@/lib/hono";
 import { formatCurrency } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { DataTableFeatures } from "@/components/data-table-features";
+import type { DataTableFeatures } from "@/components/data-table-features";
 
 import { Actions } from "./actions";
+import { AccountColumn } from "./account-column";
+import { CategoryColumn } from "./category-column";
 
 export type ResponseType = InferResponseType<
-  typeof client.api.transactions["$get"],
+  typeof client.api.transactions.$get,
   200
 >["data"][0];
 
-// Cambiar ColumnDef<ResponseType> por ColumnDef<DataTableFeatures, ResponseType>
 export const columns: ColumnDef<DataTableFeatures, ResponseType>[] = [
   {
     id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && true)
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
+    header: ({ table }) => {
+      const isAllSelected = table.getIsAllPageRowsSelected();
+      const isSomeSelected = table.getIsSomePageRowsSelected();
+
+      return (
+        <Checkbox
+          checked={isAllSelected}
+          indeterminate={!isAllSelected && isSomeSelected}
+          onCheckedChange={(checked) =>
+            table.toggleAllPageRowsSelected(!!checked)
+          }
+          aria-label="Select all"
+        />
+      );
+    },
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={(checked) =>
+          row.toggleSelected(!!checked)
+        }
         aria-label="Select row"
       />
     ),
@@ -45,73 +53,77 @@ export const columns: ColumnDef<DataTableFeatures, ResponseType>[] = [
   },
   {
     accessorKey: "date",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Date
-          <ArrowUpDown className="ml-2 size-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() =>
+          column.toggleSorting(column.getIsSorted() === "asc")
+        }
+      >
+        Date
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
-      const date = row.getValue("date") as string;
+      const date = new Date(row.getValue<string>("date"));
 
-      return <span>{format(new Date(date), "dd MMMM, yyyy")}</span>;
+      return (
+        <span>
+          {format(date, "dd MMMM, yyyy")}
+        </span>
+      );
     },
   },
   {
     accessorKey: "category",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Category
-          <ArrowUpDown className="ml-2 size-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      return (
-        <Badge variant={row.original.category ? "outline" : "destructive"}>
-          {row.original.category || "Uncategorized"}
-        </Badge>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() =>
+          column.toggleSorting(column.getIsSorted() === "asc")
+        }
+      >
+        Category
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <CategoryColumn
+        id={row.original.id}
+        category={row.original.category}
+        categoryId={row.original.categoryId}
+      />
+    ),
   },
   {
     accessorKey: "payee",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Payee
-          <ArrowUpDown className="ml-2 size-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() =>
+          column.toggleSorting(column.getIsSorted() === "asc")
+        }
+      >
+        Payee
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
   },
   {
     accessorKey: "amount",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Amount
-          <ArrowUpDown className="ml-2 size-4" />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() =>
+          column.toggleSorting(column.getIsSorted() === "asc")
+        }
+      >
+        Amount
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
+      const amount = Number(row.getValue("amount"));
 
       return (
         <Badge
@@ -125,23 +137,28 @@ export const columns: ColumnDef<DataTableFeatures, ResponseType>[] = [
   },
   {
     accessorKey: "account",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Account
-          <ArrowUpDown className="ml-2 size-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      return <Badge variant="outline">{row.original.account}</Badge>;
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() =>
+          column.toggleSorting(column.getIsSorted() === "asc")
+        }
+      >
+        Account
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <AccountColumn
+        account={row.original.account}
+        accountId={row.original.accountId}
+      />
+    ),
   },
   {
     id: "actions",
-    cell: ({ row }) => <Actions id={row.original.id} />,
+    cell: ({ row }) => (
+      <Actions id={row.original.id} />
+    ),
   },
 ];

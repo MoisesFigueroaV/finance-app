@@ -1,9 +1,7 @@
-"use client";
-
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 
-import { TransactionForm } from "@/features/transactions/components/transactions-form";
+import { TransactionForm } from "@/features/transactions/components/transaction-form";
 import { useNewTransaction } from "@/features/transactions/hooks/use-new-transaction";
 import { useCreateTransaction } from "@/features/transactions/api/use-create-transaction";
 

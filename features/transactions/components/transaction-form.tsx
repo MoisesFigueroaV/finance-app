@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 import { Trash } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -17,11 +18,10 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 
 const formSchema = z.object({
-  date: z.coerce.date(),
+  date: z.date(),
   accountId: z.string(),
   categoryId: z.string().nullable().optional(),
   payee: z.string(),
@@ -33,7 +33,7 @@ const apiSchema = insertTransactionSchema.omit({
   id: true,
 });
 
-type FormValues = z.input<typeof formSchema>;
+type FormValues = z.infer<typeof formSchema>;
 type ApiFormValues = z.input<typeof apiSchema>;
 
 type Props = {
@@ -42,8 +42,8 @@ type Props = {
   onSubmit: (values: ApiFormValues) => void;
   onDelete?: () => void;
   disabled?: boolean;
-  accountOptions: { label: string; value: string; }[];
-  categoryOptions: { label: string; value: string; }[];
+  accountOptions: { label: string; value: string }[];
+  categoryOptions: { label: string; value: string }[];
   onCreateAccount: (name: string) => void;
   onCreateCategory: (name: string) => void;
 };
@@ -85,31 +85,21 @@ export const TransactionForm = ({
         className="space-y-4 pt-4"
       >
         <FormField
-          control={form.control}
           name="date"
-          render={({ field }) => {
-            // Validar y castear de forma segura el valor de la fecha
-            const dateValue =
-              field.value instanceof Date
-                ? field.value
-                : typeof field.value === "string" || typeof field.value === "number"
-                ? new Date(field.value)
-                : undefined;
-
-            return (
-              <FormItem>
-                <FormLabel>Date</FormLabel>
-                <FormControl>
-                  <DatePicker
-                    value={dateValue}
-                    onChange={field.onChange}
-                    disabled={disabled}
-                  />
-                </FormControl>
-              </FormItem>
-            );
-          }}
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <DatePicker
+                  value={field.value}
+                  onChange={field.onChange}
+                  disabled={disabled}
+                />
+              </FormControl>
+            </FormItem>
+          )}
         />
+
         <FormField
           name="accountId"
           control={form.control}
@@ -131,6 +121,7 @@ export const TransactionForm = ({
             </FormItem>
           )}
         />
+
         <FormField
           name="categoryId"
           control={form.control}
@@ -152,6 +143,7 @@ export const TransactionForm = ({
             </FormItem>
           )}
         />
+
         <FormField
           name="payee"
           control={form.control}
@@ -170,6 +162,7 @@ export const TransactionForm = ({
             </FormItem>
           )}
         />
+
         <FormField
           name="amount"
           control={form.control}
@@ -188,6 +181,7 @@ export const TransactionForm = ({
             </FormItem>
           )}
         />
+
         <FormField
           name="notes"
           control={form.control}
@@ -207,9 +201,11 @@ export const TransactionForm = ({
             </FormItem>
           )}
         />
+
         <Button className="w-full" disabled={disabled}>
           {id ? "Save changes" : "Create transaction"}
         </Button>
+
         {!!id && (
           <Button
             type="button"
