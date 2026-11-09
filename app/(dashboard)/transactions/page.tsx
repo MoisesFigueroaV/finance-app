@@ -5,13 +5,12 @@ import { useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 
 import { useNewTransaction } from "@/features/transactions/hooks/use-new-transaction";
-import { useGetTransactions } from "@/features/transactions/api/use-get-transactions";
-import { useBulkDeleteTransactions } from "@/features/transactions/api/use-bulk-delete-transactions";
+import { useGetTransactions } from "@/features/transactions/api/use-get-trasactions";
+import { useBulkDeleteTransactions } from "@/features/transactions/api/use-bulk-delete-transaction";
 import { useBulkCreateTransactions } from "@/features/transactions/api/use-bulk-create-transactions";
 
 import { useSelectAccount } from "@/features/accounts/hooks/use-select-account";
 
-import { transactions as transactionSchema } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,8 +27,8 @@ import { UploadButton } from "./upload-button";
 
 enum VARIANTS {
   LIST = "LIST",
-  IMPORT = "IMPORT"
-};
+  IMPORT = "IMPORT",
+}
 
 const INITIAL_IMPORT_RESULTS = {
   data: [],
@@ -37,13 +36,30 @@ const INITIAL_IMPORT_RESULTS = {
   meta: {},
 };
 
+type ImportTransaction = {
+  date: string;
+  amount: number;
+  payee: string;
+  notes?: string | null;
+};
+
 const TransactionsPage = () => {
   const [AccountDialog, confirm] = useSelectAccount();
+
   const [variant, setVariant] = useState<VARIANTS>(VARIANTS.LIST);
-  const [importResults, setImportResults] = useState(INITIAL_IMPORT_RESULTS);
+
+  const [importResults, setImportResults] = useState(
+    INITIAL_IMPORT_RESULTS
+  );
+
+  const newTransaction = useNewTransaction();
+  const createTransactions = useBulkCreateTransactions();
+  const deleteTransactions = useBulkDeleteTransactions();
+  const transactionsQuery = useGetTransactions();
+
+  const transactions = transactionsQuery.data || [];
 
   const onUpload = (results: typeof INITIAL_IMPORT_RESULTS) => {
-    console.log({ results });
     setImportResults(results);
     setVariant(VARIANTS.IMPORT);
   };
@@ -53,28 +69,20 @@ const TransactionsPage = () => {
     setVariant(VARIANTS.LIST);
   };
 
-  const newTransaction = useNewTransaction();
-  const createTransactions = useBulkCreateTransactions();
-  const deleteTransactions = useBulkDeleteTransactions();
-  const transactionsQuery = useGetTransactions();
-  const transactions = transactionsQuery.data || [];
-
   const isDisabled =
-    transactionsQuery.isLoading ||
-    deleteTransactions.isPending;
+    transactionsQuery.isLoading || deleteTransactions.isPending;
 
-  const onSubmitImport = async (
-    values: typeof transactionSchema.$inferInsert[],
-  ) => {
+  const onSubmitImport = async (values: ImportTransaction[]) => {
     const accountId = await confirm();
 
     if (!accountId) {
-      return toast.error("Please select an account to continue.");
+      toast.error("Please select an account to continue.");
+      return;
     }
 
     const data = values.map((value) => ({
       ...value,
-      accountId: accountId as string,
+      accountId,
     }));
 
     createTransactions.mutate(data, {
@@ -91,8 +99,9 @@ const TransactionsPage = () => {
           <CardHeader>
             <Skeleton className="h-8 w-48" />
           </CardHeader>
+
           <CardContent>
-            <div className="h-[500px] w-full flex items-center justify-center">
+            <div className="h-125 w-full flex items-center justify-center">
               <Loader2 className="size-6 text-slate-300 animate-spin" />
             </div>
           </CardContent>
@@ -105,6 +114,7 @@ const TransactionsPage = () => {
     return (
       <>
         <AccountDialog />
+
         <ImportCard
           data={importResults.data}
           onCancel={onCancelImport}
@@ -121,6 +131,7 @@ const TransactionsPage = () => {
           <CardTitle className="text-xl line-clamp-1">
             Transaction History
           </CardTitle>
+
           <div className="flex flex-col lg:flex-row gap-y-2 items-center gap-x-2">
             <Button
               onClick={newTransaction.onOpen}
@@ -130,16 +141,19 @@ const TransactionsPage = () => {
               <Plus className="size-4 mr-2" />
               Add new
             </Button>
+
             <UploadButton onUpload={onUpload} />
           </div>
         </CardHeader>
+
         <CardContent>
           <DataTable
             filterKey="payee"
             columns={columns}
             data={transactions}
-            onDelete={(row) => {
-              const ids = row.map((r) => r.original.id);
+            onDelete={(rows) => {
+              const ids = rows.map((row) => row.original.id);
+
               deleteTransactions.mutate({ ids });
             }}
             disabled={isDisabled}

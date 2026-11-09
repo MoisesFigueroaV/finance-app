@@ -19,16 +19,24 @@ const requiredOptions = [
   "amount",
   "date",
   "payee",
-];
+] as const;
+
+type RequiredOption = (typeof requiredOptions)[number];
 
 interface SelectedColumnsState {
   [key: string]: string | null;
+}
+
+export type ImportedRow = {
+  amount: number;
+  date: string;
+  payee: string;
 };
 
 type Props = {
   data: string[][];
   onCancel: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: ImportedRow[]) => void;
 };
 
 export const ImportCard = ({
@@ -36,9 +44,10 @@ export const ImportCard = ({
   onCancel,
   onSubmit,
 }: Props) => {
-  const [selectedColumns, setSelectedColumns] = useState<SelectedColumnsState>({});
+  const [selectedColumns, setSelectedColumns] =
+    useState<SelectedColumnsState>({});
 
-  const headers = data[0];
+  const headers = data[0] ?? [];
   const body = data.slice(1);
 
   const onTableHeadSelectChange = (
@@ -46,7 +55,7 @@ export const ImportCard = ({
     value: string | null
   ) => {
     setSelectedColumns((prev) => {
-      const newSelectedColumns = {...prev};
+      const newSelectedColumns = { ...prev };
 
       for (const key in newSelectedColumns) {
         if (newSelectedColumns[key] === value) {
@@ -59,6 +68,7 @@ export const ImportCard = ({
       }
 
       newSelectedColumns[`column_${columnIndex}`] = value;
+
       return newSelectedColumns;
     });
   };
@@ -66,43 +76,63 @@ export const ImportCard = ({
   const progress = Object.values(selectedColumns).filter(Boolean).length;
 
   const handleContinue = () => {
-    const getColumnIndex = (column: string) => {
-      return column.split("_")[1];
-    };
-
     const mappedData = {
       headers: headers.map((_header, index) => {
-        const columnIndex = getColumnIndex(`column_${index}`);
-        return selectedColumns[`column_${columnIndex}`] || null;
+        return selectedColumns[`column_${index}`] || null;
       }),
-      body: body.map((row) => {
-        const transformedRow = row.map((cell, index) => {
-          const columnIndex = getColumnIndex(`column_${index}`);
-          return selectedColumns[`column_${columnIndex}`] ? cell : null;
-        });
 
-        return transformedRow.every((item) => item === null)
-          ? []
-          : transformedRow;
-      }).filter((row) => row.length > 0),
+      body: body
+        .map((row) => {
+          const transformedRow = row.map((cell, index) => {
+            return selectedColumns[`column_${index}`]
+              ? cell
+              : null;
+          });
+
+          return transformedRow.every((item) => item === null)
+            ? []
+            : transformedRow;
+        })
+        .filter((row) => row.length > 0),
     };
 
     const arrayOfData = mappedData.body.map((row) => {
-      return row.reduce((acc: any, cell, index) => {
-        const header = mappedData.headers[index];
-        if (header !== null) {
-          acc[header] = cell;
-        }
+      return row.reduce<Record<string, string>>(
+        (acc, cell, index) => {
+          const header = mappedData.headers[index];
 
-        return acc;
-      }, {});
+          if (header !== null && cell !== null) {
+            acc[header] = cell;
+          }
+
+          return acc;
+        },
+        {}
+      );
     });
 
-    const formattedData = arrayOfData.map((item) => ({
-      ...item,
-      amount: convertAmountToMiliunits(parseFloat(item.amount)),
-      date: format(parse(item.date, dateFormat, new Date()), outputFormat)
-    }));
+    const formattedData: ImportedRow[] = arrayOfData.map((item) => {
+      if (
+        !item.amount ||
+        !item.date ||
+        !item.payee
+      ) {
+        throw new Error(
+          "Missing required transaction data"
+        );
+      }
+
+      return {
+        amount: convertAmountToMiliunits(
+          parseFloat(item.amount)
+        ),
+        date: format(
+          parse(item.date, dateFormat, new Date()),
+          outputFormat
+        ),
+        payee: item.payee,
+      };
+    });
 
     onSubmit(formattedData);
   };
@@ -114,6 +144,7 @@ export const ImportCard = ({
           <CardTitle className="text-xl line-clamp-1">
             Import Transaction
           </CardTitle>
+
           <div className="flex flex-col lg:flex-row gap-y-2 items-center gap-x-2">
             <Button
               onClick={onCancel}
@@ -122,6 +153,7 @@ export const ImportCard = ({
             >
               Cancel
             </Button>
+
             <Button
               size="sm"
               disabled={progress < requiredOptions.length}
@@ -132,6 +164,7 @@ export const ImportCard = ({
             </Button>
           </div>
         </CardHeader>
+
         <CardContent>
           <ImportTable
             headers={headers}
