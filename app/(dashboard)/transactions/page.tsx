@@ -23,7 +23,6 @@ import {
 
 import { columns } from "./columns";
 import { ImportCard } from "./import-card";
-import { UploadButton } from "./upload-button";
 
 enum VARIANTS {
   LIST = "LIST",
@@ -142,7 +141,8 @@ const TransactionsPage = () => {
               Add new
             </Button>
 
-            <UploadButton onUpload={onUpload} />
+            {/* <UploadButton onUpload={onUpload} /> */}
+
           </div>
         </CardHeader>
 
