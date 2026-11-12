@@ -9,6 +9,7 @@ import { useGetTransactions } from "@/features/transactions/api/use-get-trasacti
 import { useBulkDeleteTransactions } from "@/features/transactions/api/use-bulk-delete-transaction";
 import { useBulkCreateTransactions } from "@/features/transactions/api/use-bulk-create-transactions";
 
+import { NewTransactionSheet } from "@/features/transactions/components/new-transaction-sheet";
 import { useSelectAccount } from "@/features/accounts/hooks/use-select-account";
 
 import { Button } from "@/components/ui/button";
@@ -124,43 +125,44 @@ const TransactionsPage = () => {
   }
 
   return (
-    <div className="max-w-screen-2xl mx-auto w-full pb-10 -mt-24">
-      <Card className="border-none drop-shadow-sm">
-        <CardHeader className="gap-y-2 lg:flex-row lg:items-center lg:justify-between">
-          <CardTitle className="text-xl line-clamp-1">
-            Transaction History
-          </CardTitle>
+    <>
+      <NewTransactionSheet />
 
-          <div className="flex flex-col lg:flex-row gap-y-2 items-center gap-x-2">
-            <Button
-              onClick={newTransaction.onOpen}
-              size="sm"
-              className="w-full lg:w-auto"
-            >
-              <Plus className="size-4 mr-2" />
-              Add new
-            </Button>
+      <div className="max-w-screen-2xl mx-auto w-full pb-10 -mt-24">
+        <Card className="border-none drop-shadow-sm">
+          <CardHeader className="gap-y-2 lg:flex-row lg:items-center lg:justify-between">
+            <CardTitle className="text-xl line-clamp-1">
+              Transaction History
+            </CardTitle>
 
-            {/* <UploadButton onUpload={onUpload} /> */}
+            <div className="flex flex-col lg:flex-row gap-y-2 items-center gap-x-2">
+              <Button
+                onClick={newTransaction.onOpen}
+                size="sm"
+                className="w-full lg:w-auto"
+              >
+                <Plus className="size-4 mr-2" />
+                Add new
+              </Button>
+            </div>
+          </CardHeader>
 
-          </div>
-        </CardHeader>
+          <CardContent>
+            <DataTable
+              filterKey="payee"
+              columns={columns}
+              data={transactions}
+              onDelete={(rows) => {
+                const ids = rows.map((row) => row.original.id);
 
-        <CardContent>
-          <DataTable
-            filterKey="payee"
-            columns={columns}
-            data={transactions}
-            onDelete={(rows) => {
-              const ids = rows.map((row) => row.original.id);
-
-              deleteTransactions.mutate({ ids });
-            }}
-            disabled={isDisabled}
-          />
-        </CardContent>
-      </Card>
-    </div>
+                deleteTransactions.mutate({ ids });
+              }}
+              disabled={isDisabled}
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 };
 

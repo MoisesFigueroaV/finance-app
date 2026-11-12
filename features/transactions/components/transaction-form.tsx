@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 import { Trash } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -9,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/date-picker";
+import { AmountInput } from "@/components/amount-input";
+
 import { insertTransactionSchema } from "@/db/schema";
 import { convertAmountToMiliunits } from "@/lib/utils";
-import { AmountInput } from "@/components/amount-input";
+
 import {
   Form,
   FormControl,
@@ -61,7 +62,7 @@ export const TransactionForm = ({
 }: Props) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues,
+    defaultValues,
   });
 
   const handleSubmit = (values: FormValues) => {
@@ -84,6 +85,7 @@ export const TransactionForm = ({
         onSubmit={form.handleSubmit(handleSubmit)}
         className="space-y-4 pt-4"
       >
+        {/* Date */}
         <FormField
           name="date"
           control={form.control}
@@ -100,14 +102,13 @@ export const TransactionForm = ({
           )}
         />
 
+        {/* Account */}
         <FormField
           name="accountId"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                Account
-              </FormLabel>
+              <FormLabel>Account</FormLabel>
               <FormControl>
                 <Select
                   placeholder="Select an account"
@@ -122,14 +123,13 @@ export const TransactionForm = ({
           )}
         />
 
+        {/* Category */}
         <FormField
           name="categoryId"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                Category
-              </FormLabel>
+              <FormLabel>Category</FormLabel>
               <FormControl>
                 <Select
                   placeholder="Select a category"
@@ -144,33 +144,31 @@ export const TransactionForm = ({
           )}
         />
 
+        {/* Payee */}
         <FormField
           name="payee"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                Payee
-              </FormLabel>
+              <FormLabel>Payee</FormLabel>
               <FormControl>
                 <Input
+                  {...field}
                   disabled={disabled}
                   placeholder="Add a payee"
-                  {...field}
                 />
               </FormControl>
             </FormItem>
           )}
         />
 
+        {/* Amount */}
         <FormField
           name="amount"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                Amount
-              </FormLabel>
+              <FormLabel>Amount</FormLabel>
               <FormControl>
                 <AmountInput
                   {...field}
@@ -182,14 +180,13 @@ export const TransactionForm = ({
           )}
         />
 
+        {/* Notes */}
         <FormField
           name="notes"
           control={form.control}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                Notes
-              </FormLabel>
+              <FormLabel>Notes</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
@@ -202,10 +199,16 @@ export const TransactionForm = ({
           )}
         />
 
-        <Button className="w-full" disabled={disabled}>
+        {/* Submit */}
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={disabled}
+        >
           {id ? "Save changes" : "Create transaction"}
         </Button>
 
+        {/* Delete */}
         {!!id && (
           <Button
             type="button"

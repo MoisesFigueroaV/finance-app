@@ -1,15 +1,18 @@
 "use client";
 
-import * as React from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { DayPicker } from "react-day-picker";
-import { Popover } from "@base-ui/react/popover";
+import { CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-import "react-day-picker/style.css";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+import { Calendar } from "@/components/ui/calendar";
 
 type Props = {
   value?: Date;
@@ -17,13 +20,17 @@ type Props = {
   disabled?: boolean;
 };
 
-export const DatePicker = ({ value, onChange, disabled }: Props) => {
+export const DatePicker = ({
+  value,
+  onChange,
+  disabled,
+}: Props) => {
   return (
-    <Popover.Root>
-      <Popover.Trigger
-        render={(props) => (
+    <Popover>
+      <PopoverTrigger
+        render={
           <Button
-            {...props}
+            type="button"
             disabled={disabled}
             variant="outline"
             className={cn(
@@ -32,22 +39,28 @@ export const DatePicker = ({ value, onChange, disabled }: Props) => {
             )}
           >
             <CalendarIcon className="mr-2 size-4" />
-            {value ? format(value, "PPP") : <span>Pick a date</span>}
+
+            {value ? (
+              format(value, "PPP")
+            ) : (
+              <span>Pick a date</span>
+            )}
           </Button>
-        )}
+        }
       />
-      <Popover.Portal>
-        <Popover.Positioner side="bottom" align="start" sideOffset={4}>
-          <Popover.Popup className="z-50 rounded-md border bg-popover p-3 text-popover-foreground shadow-md outline-none">
-            <DayPicker
-              mode="single"
-              selected={value}
-              onSelect={(date) => onChange?.(date)}
-              disabled={disabled}
-            />
-          </Popover.Popup>
-        </Popover.Positioner>
-      </Popover.Portal>
-    </Popover.Root>
+
+      <PopoverContent
+        align="start"
+        sideOffset={4}
+        className="w-auto p-0"
+      >
+        <Calendar
+          mode="single"
+          selected={value}
+          onSelect={onChange}
+          disabled={disabled}
+        />
+      </PopoverContent>
+    </Popover>
   );
 };
