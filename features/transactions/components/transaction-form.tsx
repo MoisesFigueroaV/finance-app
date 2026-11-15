@@ -19,14 +19,15 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 
 const formSchema = z.object({
   date: z.date(),
-  accountId: z.string(),
+  accountId: z.string().min(1, "Select an account"),
   categoryId: z.string().nullable().optional(),
-  payee: z.string(),
-  amount: z.string(),
+  payee: z.string().min(1, "Add a payee"),
+  amount: z.string().min(1, "Add an amount"),
   notes: z.string().nullable().optional(),
 });
 
@@ -62,17 +63,37 @@ export const TransactionForm = ({
 }: Props) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues,
+    defaultValues: {
+      date: defaultValues?.date ?? new Date(),
+      accountId: defaultValues?.accountId ?? "",
+      categoryId: defaultValues?.categoryId ?? null,
+      payee: defaultValues?.payee ?? "",
+      amount: defaultValues?.amount ?? "",
+      notes: defaultValues?.notes ?? "",
+    },
   });
 
   const handleSubmit = (values: FormValues) => {
+    // DEBUG: borrar cuando se resuelva el problema
+    console.log("Submitting:", values);
+
     const amount = parseFloat(values.amount);
+
+    if (Number.isNaN(amount)) {
+      form.setError("amount", { message: "Enter a valid amount" });
+      return;
+    }
+
     const amountInMiliunits = convertAmountToMiliunits(amount);
 
     onSubmit({
       ...values,
       amount: amountInMiliunits,
     });
+  };
+
+  const handleInvalid = (errors: unknown) => {
+    console.log("Validation errors:", errors);
   };
 
   const handleDelete = () => {
@@ -82,7 +103,7 @@ export const TransactionForm = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit, handleInvalid)}
         className="space-y-4 pt-4"
       >
         {/* Date */}
@@ -98,6 +119,7 @@ export const TransactionForm = ({
                   disabled={disabled}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -109,6 +131,7 @@ export const TransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Account</FormLabel>
+
               <FormControl>
                 <Select
                   placeholder="Select an account"
@@ -119,6 +142,7 @@ export const TransactionForm = ({
                   disabled={disabled}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -130,16 +154,18 @@ export const TransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
+
               <FormControl>
                 <Select
                   placeholder="Select a category"
                   options={categoryOptions}
                   onCreate={onCreateCategory}
-                  value={field.value}
+                  value={field.value ?? undefined}
                   onChange={field.onChange}
                   disabled={disabled}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -151,13 +177,16 @@ export const TransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Payee</FormLabel>
+
               <FormControl>
                 <Input
                   {...field}
+                  value={field.value ?? ""}
                   disabled={disabled}
                   placeholder="Add a payee"
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -169,13 +198,16 @@ export const TransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Amount</FormLabel>
+
               <FormControl>
                 <AmountInput
                   {...field}
+                  value={field.value ?? ""}
                   disabled={disabled}
                   placeholder="0.00"
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -187,6 +219,7 @@ export const TransactionForm = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Notes</FormLabel>
+
               <FormControl>
                 <Textarea
                   {...field}
@@ -195,11 +228,11 @@ export const TransactionForm = ({
                   placeholder="Optional notes"
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Submit */}
         <Button
           type="submit"
           className="w-full"
@@ -208,7 +241,6 @@ export const TransactionForm = ({
           {id ? "Save changes" : "Create transaction"}
         </Button>
 
-        {/* Delete */}
         {!!id && (
           <Button
             type="button"
