@@ -8,7 +8,7 @@ import { useNewTransaction } from "@/features/transactions/hooks/use-new-transac
 import { useGetTransactions } from "@/features/transactions/api/use-get-trasactions";
 import { useBulkDeleteTransactions } from "@/features/transactions/api/use-bulk-delete-transaction";
 import { useBulkCreateTransactions } from "@/features/transactions/api/use-bulk-create-transactions";
-
+import { EditTransactionSheet } from "@/features/transactions/components/edit-transaction-sheet";
 import { NewTransactionSheet } from "@/features/transactions/components/new-transaction-sheet";
 import { useSelectAccount } from "@/features/accounts/hooks/use-select-account";
 
@@ -24,6 +24,7 @@ import {
 
 import { columns } from "./columns";
 import { ImportCard } from "./import-card";
+import { UploadButton, type CSVResults } from "./upload-button";
 
 enum VARIANTS {
   LIST = "LIST",
@@ -127,6 +128,7 @@ const TransactionsPage = () => {
   return (
     <>
       <NewTransactionSheet />
+      <EditTransactionSheet />
 
       <div className="max-w-screen-2xl mx-auto w-full pb-10 -mt-24">
         <Card className="border-none drop-shadow-sm">
@@ -144,6 +146,7 @@ const TransactionsPage = () => {
                 <Plus className="size-4 mr-2" />
                 Add new
               </Button>
+              <UploadButton onUpload={() => {}} />
             </div>
           </CardHeader>
 

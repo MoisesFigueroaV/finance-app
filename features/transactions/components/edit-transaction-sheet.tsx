@@ -104,7 +104,7 @@ export const EditTransactionSheet = () => {
     notes: transactionQuery.data.notes,
   } : {
     accountId: "",
-    categoryId: "",
+    categoryId: null,
     amount: "",
     date: new Date(),
     payee: "",
