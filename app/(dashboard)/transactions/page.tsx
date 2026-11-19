@@ -25,7 +25,8 @@ import {
 import { columns } from "./columns";
 import { ImportCard } from "./import-card";
 import { UploadButton, type CSVResults } from "./upload-button";
-import { YearFilter } from "./year-filter"; // CAMBIO: nuevo filtro por año
+import { YearFilter } from "./year-filter";
+import { AccountFilter } from "./account-filter"; // CAMBIO: filtro por cuenta
 
 enum VARIANTS {
   LIST = "LIST",
@@ -150,7 +151,7 @@ const TransactionsPage = () => {
 
               <UploadButton onUpload={onUpload} />
 
-              {/* CAMBIO: selector de año */}
+              <AccountFilter />
               <YearFilter />
             </div>
           </CardHeader>
