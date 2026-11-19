@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { format, parse } from "date-fns";
 
 import {
@@ -21,12 +22,11 @@ const requiredOptions = [
   "payee",
 ] as const;
 
-type RequiredOption = (typeof requiredOptions)[number];
-
 interface SelectedColumnsState {
   [key: string]: string | null;
 }
 
+// CAMBIO: tipo explícito de lo que se envía (antes era `any`)
 export type ImportedRow = {
   amount: number;
   date: string;
@@ -36,7 +36,7 @@ export type ImportedRow = {
 type Props = {
   data: string[][];
   onCancel: () => void;
-  onSubmit: (data: ImportedRow[]) => void;
+  onSubmit: (data: ImportedRow[]) => void; // CAMBIO: antes (data: any)
 };
 
 export const ImportCard = ({
@@ -76,63 +76,58 @@ export const ImportCard = ({
   const progress = Object.values(selectedColumns).filter(Boolean).length;
 
   const handleContinue = () => {
-    const mappedData = {
-      headers: headers.map((_header, index) => {
-        return selectedColumns[`column_${index}`] || null;
-      }),
+    // CAMBIO: se elimina getColumnIndex, que solo repetía el índice
+    const mappedHeaders = headers.map(
+      (_header, index) => selectedColumns[`column_${index}`] || null
+    );
 
-      body: body
-        .map((row) => {
-          const transformedRow = row.map((cell, index) => {
-            return selectedColumns[`column_${index}`]
-              ? cell
-              : null;
-          });
-
-          return transformedRow.every((item) => item === null)
-            ? []
-            : transformedRow;
-        })
-        .filter((row) => row.length > 0),
-    };
-
-    const arrayOfData = mappedData.body.map((row) => {
-      return row.reduce<Record<string, string>>(
-        (acc, cell, index) => {
-          const header = mappedData.headers[index];
-
-          if (header !== null && cell !== null) {
-            acc[header] = cell;
-          }
-
-          return acc;
-        },
-        {}
-      );
-    });
-
-    const formattedData: ImportedRow[] = arrayOfData.map((item) => {
-      if (
-        !item.amount ||
-        !item.date ||
-        !item.payee
-      ) {
-        throw new Error(
-          "Missing required transaction data"
+    const mappedBody = body
+      .map((row) => {
+        const transformedRow = row.map((cell, index) =>
+          selectedColumns[`column_${index}`] ? cell : null
         );
+
+        return transformedRow.every((item) => item === null)
+          ? []
+          : transformedRow;
+      })
+      .filter((row) => row.length > 0);
+
+    // CAMBIO: acc tipado como Record<string, string> (antes `any`)
+    const arrayOfData = mappedBody.map((row) =>
+      row.reduce<Record<string, string>>((acc, cell, index) => {
+        const header = mappedHeaders[index];
+
+        if (header !== null && cell !== null) {
+          acc[header] = cell;
+        }
+
+        return acc;
+      }, {})
+    );
+
+    // CAMBIO: validamos cada fila y avisamos con un toast en vez de romper
+    const formattedData: ImportedRow[] = [];
+
+    for (const [i, item] of arrayOfData.entries()) {
+      const amount = parseFloat(item.amount ?? "");
+      const parsedDate = parse(item.date ?? "", dateFormat, new Date());
+
+      if (
+        !item.payee ||
+        Number.isNaN(amount) ||
+        Number.isNaN(parsedDate.getTime())
+      ) {
+        toast.error(`Invalid data in row ${i + 1}. Check the selected columns.`);
+        return;
       }
 
-      return {
-        amount: convertAmountToMiliunits(
-          parseFloat(item.amount)
-        ),
-        date: format(
-          parse(item.date, dateFormat, new Date()),
-          outputFormat
-        ),
+      formattedData.push({
+        amount: convertAmountToMiliunits(amount),
+        date: format(parsedDate, outputFormat),
         payee: item.payee,
-      };
-    });
+      });
+    }
 
     onSubmit(formattedData);
   };

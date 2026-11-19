@@ -25,13 +25,14 @@ import {
 import { columns } from "./columns";
 import { ImportCard } from "./import-card";
 import { UploadButton, type CSVResults } from "./upload-button";
+import { YearFilter } from "./year-filter"; // CAMBIO: nuevo filtro por año
 
 enum VARIANTS {
   LIST = "LIST",
   IMPORT = "IMPORT",
 }
 
-const INITIAL_IMPORT_RESULTS = {
+const INITIAL_IMPORT_RESULTS: CSVResults = {
   data: [],
   errors: [],
   meta: {},
@@ -49,7 +50,7 @@ const TransactionsPage = () => {
 
   const [variant, setVariant] = useState<VARIANTS>(VARIANTS.LIST);
 
-  const [importResults, setImportResults] = useState(
+  const [importResults, setImportResults] = useState<CSVResults>(
     INITIAL_IMPORT_RESULTS
   );
 
@@ -60,7 +61,7 @@ const TransactionsPage = () => {
 
   const transactions = transactionsQuery.data || [];
 
-  const onUpload = (results: typeof INITIAL_IMPORT_RESULTS) => {
+  const onUpload = (results: CSVResults) => {
     setImportResults(results);
     setVariant(VARIANTS.IMPORT);
   };
@@ -146,7 +147,11 @@ const TransactionsPage = () => {
                 <Plus className="size-4 mr-2" />
                 Add new
               </Button>
-              <UploadButton onUpload={() => {}} />
+
+              <UploadButton onUpload={onUpload} />
+
+              {/* CAMBIO: selector de año */}
+              <YearFilter />
             </div>
           </CardHeader>
 

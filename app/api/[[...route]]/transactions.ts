@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { Hono } from "hono";
-import { parse, startOfYear, endOfYear, startOfDay, endOfDay } from "date-fns";
+import { parse, startOfDay, endOfDay } from "date-fns";
 import { createId } from "@paralleldrive/cuid2";
 import { zValidator } from "@hono/zod-validator";
 import { clerkMiddleware, getAuth } from "@clerk/hono";
@@ -31,14 +31,13 @@ const app = new Hono()
         return c.json({ error: "Unauthorized" }, 401);
       }
 
-      const now = new Date();
-
+      // Sin from/to no se filtra por fecha: se devuelven todas las transacciones
       const startDate = from
         ? startOfDay(parse(from, "yyyy-MM-dd", new Date()))
-        : startOfYear(now);
+        : undefined;
       const endDate = to
         ? endOfDay(parse(to, "yyyy-MM-dd", new Date()))
-        : endOfYear(now);
+        : undefined;
 
       const data = await db
         .select({
@@ -59,8 +58,9 @@ const app = new Hono()
           and(
             accountId ? eq(transactions.accountId, accountId) : undefined,
             eq(accounts.userId, auth.userId),
-            gte(transactions.date, startDate),
-            lte(transactions.date, endDate),
+            // CAMBIO: las fechas solo se aplican si existen
+            startDate ? gte(transactions.date, startDate) : undefined,
+            endDate ? lte(transactions.date, endDate) : undefined,
           )
         )
         .orderBy(desc(transactions.date));
